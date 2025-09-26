@@ -11,6 +11,14 @@ def shared_calendar(share_code):
     """Serve the shared calendar view"""
     return render_template('calendar.html', share_code=share_code)
 
+@main_bp.route('/debug')
+def debug():
+    """Debug page for testing notifications"""
+    from flask import send_from_directory
+    import os
+    # Serve the debug.html file from the root directory
+    return send_from_directory(os.path.join(os.path.dirname(__file__), '..', '..'), 'debug.html')
+
 @main_bp.route('/manifest.json')
 def manifest():
     """PWA manifest file"""

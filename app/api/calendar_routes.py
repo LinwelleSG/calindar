@@ -279,31 +279,45 @@ def get_shared_calendar_events(share_code):
 @api_bp.route('/calendars/<int:calendar_id>', methods=['DELETE'])
 def delete_calendar(calendar_id):
     """Delete a calendar (only owner can delete)"""
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({'error': 'User session required'}), 401
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'error': 'User session required'}), 401
+        
+        # Find the user-calendar relationship to check ownership
+        user_calendar = UserCalendar.query.filter_by(
+            user_id=user_id,
+            calendar_id=calendar_id,
+            is_owner=True
+        ).first()
+        
+        if not user_calendar:
+            return jsonify({'error': 'Only the calendar owner can delete the calendar'}), 403
+        
+        # Check if owner is the only member
+        member_count = UserCalendar.query.filter_by(calendar_id=calendar_id).count()
+        if member_count > 1:
+            return jsonify({'error': 'Cannot delete calendar with other members. Remove all members first or transfer ownership.'}), 400
+        
+        # Get the calendar
+        calendar = Calendar.query.get_or_404(calendar_id)
+        
+        # Delete all reminders for events in this calendar first
+        from app.models import Reminder
+        reminders_to_delete = db.session.query(Reminder).join(Event).filter(Event.calendar_id == calendar_id).all()
+        for reminder in reminders_to_delete:
+            db.session.delete(reminder)
+        
+        # Delete the calendar (cascade will handle events and user_calendars)
+        db.session.delete(calendar)
+        db.session.commit()
+        
+        return jsonify({'message': 'Calendar deleted successfully'}), 200
     
-    # Find the user-calendar relationship to check ownership
-    user_calendar = UserCalendar.query.filter_by(
-        user_id=user_id,
-        calendar_id=calendar_id,
-        is_owner=True
-    ).first()
-    
-    if not user_calendar:
-        return jsonify({'error': 'Only the calendar owner can delete the calendar'}), 403
-    
-    # Check if owner is the only member
-    member_count = UserCalendar.query.filter_by(calendar_id=calendar_id).count()
-    if member_count > 1:
-        return jsonify({'error': 'Cannot delete calendar with other members. Remove all members first or transfer ownership.'}), 400
-    
-    # Delete the calendar (cascade will handle related records)
-    calendar = Calendar.query.get_or_404(calendar_id)
-    db.session.delete(calendar)
-    db.session.commit()
-    
-    return jsonify({'message': 'Calendar deleted successfully'}), 200
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error deleting calendar: {str(e)}")
+        return jsonify({'error': f'Failed to delete calendar: {str(e)}'}), 500
 
 @api_bp.route('/calendars/<int:calendar_id>/members/<int:member_id>', methods=['DELETE'])
 def remove_member(calendar_id, member_id):

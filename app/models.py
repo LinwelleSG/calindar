@@ -112,6 +112,9 @@ class Event(db.Model):
     # Foreign Key
     calendar_id = db.Column(db.Integer, db.ForeignKey('calendar.id'), nullable=False)
     
+    # Relationships
+    reminders = db.relationship('Reminder', backref='event', lazy=True, cascade='all, delete-orphan')
+    
     def to_dict(self):
         return {
             'id': self.id,
@@ -132,9 +135,6 @@ class Reminder(db.Model):
     reminder_time = db.Column(db.DateTime, nullable=False)
     sent = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    # Relationships
-    event = db.relationship('Event', backref='reminders')
     
     def to_dict(self):
         return {

@@ -22,6 +22,11 @@ class SharedCalendarApp {
             if (this.calendar) {
                 this.calendar.addEvent(event);
                 this.showNotification('New event added: ' + event.title, 'success');
+                
+                // Add to reminder service
+                if (window.reminderService) {
+                    window.reminderService.addEvent(event);
+                }
             }
         });
         
@@ -29,6 +34,11 @@ class SharedCalendarApp {
             if (this.calendar) {
                 this.calendar.updateEvent(event);
                 this.showNotification('Event updated: ' + event.title, 'info');
+                
+                // Update in reminder service
+                if (window.reminderService) {
+                    window.reminderService.updateEvent(event);
+                }
             }
         });
         
@@ -36,6 +46,11 @@ class SharedCalendarApp {
             if (this.calendar) {
                 this.calendar.removeEvent(data.event_id);
                 this.showNotification('Event deleted', 'info');
+                
+                // Remove from reminder service
+                if (window.reminderService) {
+                    window.reminderService.removeEvent(data.event_id);
+                }
             }
         });
         
@@ -112,6 +127,15 @@ class SharedCalendarApp {
             if (eventsResponse.ok) {
                 const events = await eventsResponse.json();
                 this.calendar.setEvents(events);
+                
+                // Load reminders into reminder service
+                if (window.reminderService) {
+                    window.reminderService.loadReminders(events);
+                    // Start the reminder service if not already running
+                    if (!window.reminderService.isRunning) {
+                        window.reminderService.start();
+                    }
+                }
             }
             
             // Join the calendar room for real-time updates
@@ -212,6 +236,11 @@ class SharedCalendarApp {
                 this.closeModal('addEventModal');
                 this.showNotification('Event added successfully!', 'success');
                 
+                // Add to reminder service
+                if (window.reminderService) {
+                    window.reminderService.addEvent(event);
+                }
+                
                 // Reset form
                 document.getElementById('addEventForm').reset();
             } else {
@@ -279,6 +308,7 @@ class SharedCalendarApp {
                 .notification-success { background-color: #28a745; }
                 .notification-error { background-color: #dc3545; }
                 .notification-info { background-color: #2196F3; }
+                .notification-reminder { background-color: #ff9500; border: 2px solid #e68900; }
                 .notification-close {
                     background: none;
                     border: none;

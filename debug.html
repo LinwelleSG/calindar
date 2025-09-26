@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Notification Debug Test</title>
+</head>
+<body>
+    <h1>🔔 Notification Debug Test</h1>
+    
+    <div id="status"></div>
+    
+    <button onclick="testNotificationPermission()">1. Test Notification Permission</button><br><br>
+    <button onclick="testSimpleNotification()">2. Test Simple Notification</button><br><br>
+    <button onclick="testReminderService()">3. Test Reminder Service</button><br><br>
+    <button onclick="createTestReminder()">4. Create Test Reminder (10 seconds)</button><br><br>
+    <button onclick="showReminderStatus()">5. Show Reminder Status</button><br><br>
+    
+    <div id="output" style="margin-top: 20px; padding: 10px; background: #f0f0f0; white-space: pre-wrap;"></div>
+
+    <script src="/static/js/reminder-service.js"></script>
+    <script>
+        function log(message) {
+            console.log(message);
+            const output = document.getElementById('output');
+            output.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
+        }
+
+        function updateStatus(status) {
+            document.getElementById('status').innerHTML = '<h3>' + status + '</h3>';
+        }
+
+        async function testNotificationPermission() {
+            log('Testing notification permission...');
+            updateStatus('Testing Permission...');
+            
+            if (!('Notification' in window)) {
+                log('❌ Notifications not supported in this browser');
+                updateStatus('❌ Not Supported');
+                return;
+            }
+            
+            log('Current permission: ' + Notification.permission);
+            
+            if (Notification.permission === 'default') {
+                log('Requesting permission...');
+                const permission = await Notification.requestPermission();
+                log('Permission result: ' + permission);
+            }
+            
+            if (Notification.permission === 'granted') {
+                log('✅ Notifications are enabled!');
+                updateStatus('✅ Permission Granted');
+            } else {
+                log('❌ Notifications permission denied');
+                updateStatus('❌ Permission Denied');
+            }
+        }
+
+        function testSimpleNotification() {
+            log('Testing simple notification...');
+            updateStatus('Testing Simple Notification...');
+            
+            if (Notification.permission !== 'granted') {
+                log('❌ Permission not granted. Run test 1 first.');
+                return;
+            }
+            
+            try {
+                const notification = new Notification('🔔 Test Notification', {
+                    body: 'This is a test notification!',
+                    icon: '/static/icons/icon-192x192.png'
+                });
+                
+                notification.onshow = () => log('✅ Notification shown successfully');
+                notification.onerror = (error) => log('❌ Notification error: ' + error);
+                notification.onclick = () => {
+                    log('📱 Notification clicked');
+                    notification.close();
+                };
+                
+                log('✅ Simple notification created');
+                updateStatus('✅ Simple Notification Sent');
+            } catch (error) {
+                log('❌ Error creating notification: ' + error);
+                updateStatus('❌ Error Creating Notification');
+            }
+        }
+
+        function testReminderService() {
+            log('Testing reminder service...');
+            updateStatus('Testing Reminder Service...');
+            
+            if (!window.reminderService) {
+                log('❌ Reminder service not found');
+                updateStatus('❌ Service Not Found');
+                return;
+            }
+            
+            log('✅ Reminder service found');
+            log('Service running: ' + window.reminderService.isRunning);
+            log('Reminder count: ' + window.reminderService.reminders.size);
+            
+            // Test reminder trigger directly
+            window.reminderService.testReminder();
+            
+            updateStatus('✅ Reminder Service Tested');
+        }
+
+        function createTestReminder() {
+            log('Creating test reminder (will fire in 10 seconds)...');
+            updateStatus('Creating Test Reminder...');
+            
+            if (!window.reminderService) {
+                log('❌ Reminder service not found');
+                return;
+            }
+            
+            const testEvent = window.reminderService.createTestEvent();
+            log('✅ Test event created: ' + testEvent.title);
+            log('Will remind at: ' + new Date(Date.now() + 10000).toLocaleTimeString());
+            
+            updateStatus('⏱️ Test Reminder Set (10 seconds)');
+        }
+
+        function showReminderStatus() {
+            log('Showing reminder service status...');
+            
+            if (!window.reminderService) {
+                log('❌ Reminder service not found');
+                return;
+            }
+            
+            const status = window.reminderService.getStatus();
+            log('Service Status:');
+            log('- Running: ' + status.isRunning);
+            log('- Reminder count: ' + status.reminderCount);
+            log('- Upcoming reminders: ' + status.upcomingReminders.length);
+            
+            status.upcomingReminders.forEach((reminder, index) => {
+                log(`  ${index + 1}. "${reminder.title}" in ${reminder.minutesUntil} minutes`);
+            });
+            
+            updateStatus('📊 Status Shown');
+        }
+
+        // Auto-start when page loads
+        window.addEventListener('load', () => {
+            log('🔔 Debug page loaded');
+            log('Notification support: ' + ('Notification' in window));
+            log('Current permission: ' + (window.Notification ? Notification.permission : 'N/A'));
+            log('Reminder service available: ' + (!!window.reminderService));
+            
+            if (window.reminderService && !window.reminderService.isRunning) {
+                window.reminderService.start();
+                log('✅ Reminder service started');
+            }
+        });
+    </script>
+</body>
+</html>

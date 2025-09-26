@@ -59,6 +59,11 @@ class CalendarApp {
                 this.calendar.addEvent(event);
                 // Only show notification if this is from another user
                 // The event creator already gets a success notification
+                
+                // Add to reminder service
+                if (window.reminderService) {
+                    window.reminderService.addEvent(event);
+                }
             }
         });
         
@@ -67,6 +72,11 @@ class CalendarApp {
                 this.calendar.updateEvent(event);
                 // Only show notification if this is from another user
                 // The event updater already gets a success notification
+                
+                // Update in reminder service
+                if (window.reminderService) {
+                    window.reminderService.updateEvent(event);
+                }
             }
         });
         
@@ -74,6 +84,11 @@ class CalendarApp {
             if (this.calendar) {
                 this.calendar.removeEvent(data.event_id);
                 this.showNotification('Event deleted', 'info');
+                
+                // Remove from reminder service
+                if (window.reminderService) {
+                    window.reminderService.removeEvent(data.event_id);
+                }
             }
         });
         
@@ -528,6 +543,15 @@ class CalendarApp {
             if (response.ok) {
                 const events = await response.json();
                 this.calendar.setEvents(events);
+                
+                // Load reminders into reminder service
+                if (window.reminderService) {
+                    window.reminderService.loadReminders(events);
+                    // Start the reminder service if not already running
+                    if (!window.reminderService.isRunning) {
+                        window.reminderService.start();
+                    }
+                }
             }
         } catch (error) {
             console.error('Error loading events:', error);
@@ -1098,6 +1122,7 @@ class CalendarApp {
                 .notification-success { background-color: #28a745; }
                 .notification-error { background-color: #dc3545; }
                 .notification-info { background-color: #2196F3; }
+                .notification-reminder { background-color: #ff9500; border: 2px solid #e68900; }
                 .notification-close {
                     background: none;
                     border: none;
