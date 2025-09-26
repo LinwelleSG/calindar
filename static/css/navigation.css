@@ -1,0 +1,61 @@
+/* Navigation Styles */
+.calendar-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.calendar-navigation h3 {
+    color: #2c3e50;
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.calendar-navigation button {
+    padding: 0.5rem 1rem;
+}
+
+/* Additional button styles */
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+/* Event details modal improvements */
+.event-details {
+    padding: 1rem 0;
+}
+
+.event-details p {
+    margin-bottom: 0.5rem;
+}
+
+.event-details strong {
+    color: #2c3e50;
+}
+
+/* Mobile improvements */
+@media (max-width: 768px) {
+    .calendar-navigation {
+        flex-direction: row;
+        gap: 0.5rem;
+    }
+    
+    .calendar-navigation h3 {
+        font-size: 1.2rem;
+    }
+    
+    .calendar-navigation button {
+        padding: 0.5rem;
+        min-width: 40px;
+    }
+}

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calindar - Family Calendar</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2196F3">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Calindar">
+    
+    <!-- CSS Framework and Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="container">
+                <h1 class="logo">
+                    <i class="fas fa-calendar-alt"></i>
+                    Calindar
+                </h1>
+                <nav class="nav">
+                    <button id="createCalendarBtn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        New Calendar
+                    </button>
+                    <button id="joinCalendarBtn" class="btn btn-secondary">
+                        <i class="fas fa-share-alt"></i>
+                        Join Calendar
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="container">
+                <!-- Username Setup Section -->
+                <section id="usernameSection" class="welcome-section">
+                    <div class="welcome-content">
+                        <h2>Welcome to Calindar</h2>
+                        <p>Please enter your name to get started</p>
+                        <div class="username-form">
+                            <input type="text" id="usernameInput" placeholder="Enter your name" class="username-input">
+                            <button class="btn btn-large btn-primary" onclick="setUsername()">
+                                <i class="fas fa-user"></i>
+                                Continue
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Welcome Section -->
+                <section id="welcomeSection" class="welcome-section" style="display: none;">
+                    <div class="welcome-content">
+                        <h2>Welcome to Calindar</h2>
+                        <p>Create and share calendars with your family and loved ones</p>
+                        <div class="actions">
+                            <button class="btn btn-large btn-primary" onclick="showCreateCalendarModal()">
+                                <i class="fas fa-calendar-plus"></i>
+                                Create New Calendar
+                            </button>
+                            <button class="btn btn-large btn-outline" onclick="showJoinCalendarModal()">
+                                <i class="fas fa-key"></i>
+                                Join with Share Code
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- My Calendars Section -->
+                <section id="calendarsSection" class="calendars-section" style="display: none;">
+                    <div class="section-header">
+                        <h2>My Calendars</h2>
+                        <span id="currentUserName" class="current-user"></span>
+                    </div>
+                    <div id="calendarsList" class="calendars-grid">
+                        <!-- Calendars will be loaded here -->
+                    </div>
+                </section>
+
+                <!-- Calendar View Section -->
+                <section id="calendarView" class="calendar-view" style="display: none;">
+                    <div class="calendar-header">
+                        <button id="backToCalendars" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i>
+                            Back
+                        </button>
+                        <h2 id="currentCalendarName">Calendar</h2>
+                        <div class="calendar-actions">
+                            <button id="shareCalendarBtn" class="btn btn-outline">
+                                <i class="fas fa-share"></i>
+                                Share
+                            </button>
+                            <button id="addEventBtn" class="btn btn-primary">
+                                <i class="fas fa-plus"></i>
+                                Add Event
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="calendar-container">
+                        <div class="calendar-main">
+                            <div id="calendar"></div>
+                        </div>
+                        <div class="calendar-sidebar">
+                            <div class="sidebar-section">
+                                <h3><i class="fas fa-clock"></i> Upcoming Events</h3>
+                                <div id="upcomingEvents" class="upcoming-events">
+                                    <div class="loading-placeholder">Loading events...</div>
+                                </div>
+                            </div>
+                            <div class="sidebar-section">
+                                <h3><i class="fas fa-users"></i> Members</h3>
+                                <div id="calendarMembers" class="calendar-members">
+                                    <div class="loading-placeholder">Loading members...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Create Calendar Modal -->
+    <div id="createCalendarModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Calendar</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="createCalendarForm">
+                    <div class="form-group">
+                        <label for="calendarName">Calendar Name</label>
+                        <input type="text" id="calendarName" name="name" required placeholder="e.g., Family Calendar">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('createCalendarModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create Calendar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Join Calendar Modal -->
+    <div id="joinCalendarModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Join Calendar</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="joinCalendarForm">
+                    <div class="form-group">
+                        <label for="shareCode">Share Code</label>
+                        <input type="text" id="shareCode" name="shareCode" required placeholder="Enter 8-character code">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('joinCalendarModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Join Calendar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Event Modal -->
+    <div id="addEventModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Event</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addEventForm">
+                    <div class="form-group">
+                        <label for="eventTitle">Title</label>
+                        <input type="text" id="eventTitle" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventDescription">Description</label>
+                        <textarea id="eventDescription" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="eventStartDate">Start Date</label>
+                            <input type="date" id="eventStartDate" name="startDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="eventStartTime">Start Time</label>
+                            <input type="time" id="eventStartTime" name="startTime" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="eventEndDate">End Date</label>
+                            <input type="date" id="eventEndDate" name="endDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="eventEndTime">End Time</label>
+                            <input type="time" id="eventEndTime" name="endTime" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="allDay" name="allDay">
+                            All Day Event
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label for="reminderMinutes">Reminder</label>
+                        <select id="reminderMinutes" name="reminderMinutes">
+                            <option value="0">No reminder</option>
+                            <option value="5">5 minutes before</option>
+                            <option value="15" selected>15 minutes before</option>
+                            <option value="30">30 minutes before</option>
+                            <option value="60">1 hour before</option>
+                            <option value="1440">1 day before</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('addEventModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Event</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Calendar Modal -->
+    <div id="shareCalendarModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Share Calendar</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Share this code with family and friends:</p>
+                <div class="share-code-container">
+                    <code id="shareCodeDisplay" class="share-code"></code>
+                    <button id="copyShareCode" class="btn btn-outline">
+                        <i class="fas fa-copy"></i>
+                        Copy
+                    </button>
+                </div>
+                <p class="share-note">Anyone with this code can view and add events to this calendar.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    <script src="/static/js/calendar.js"></script>
+    <script src="/static/js/app.js"></script>
+    <script>
+        // Register service worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => console.log('SW registered'))
+                    .catch(error => console.log('SW registration failed'));
+            });
+        }
+    </script>
+</body>
+</html>
