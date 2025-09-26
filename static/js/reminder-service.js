@@ -51,12 +51,12 @@ class ReminderService {
         }
         
         this.isRunning = true;
-        // Check every 10 seconds for testing (was 30 seconds)
+        // Check every 5 seconds for testing
         this.checkInterval = setInterval(() => {
             this.checkReminders();
-        }, 10000);
+        }, 5000);
         
-        console.log('🔔 ReminderService: Started - checking every 10 seconds');
+        console.log('🔔 ReminderService: Started - checking every 5 seconds');
         
         // Do an immediate check
         this.checkReminders();
@@ -116,27 +116,46 @@ class ReminderService {
 
     checkReminders() {
         const now = new Date();
-        console.log(`[Reminder Service] Checking reminders at ${now.toLocaleString()}`);
-        console.log(`[Reminder Service] Total reminders to check: ${this.reminders.size}`);
+        console.log(`🔔 =============== CHECKING REMINDERS ===============`);
+        console.log(`🔔 Current time: ${now.toLocaleString()}`);
+        console.log(`🔔 Total reminders to check: ${this.reminders.size}`);
+        
+        if (this.reminders.size === 0) {
+            console.log(`🔔 No reminders to check`);
+            return;
+        }
         
         for (const [eventId, reminder] of this.reminders.entries()) {
             const timeDiff = reminder.reminderTime - now;
             const secondsUntil = Math.floor(timeDiff / 1000);
             
-            console.log(`[Reminder Service] Event "${reminder.title}": ${secondsUntil}s until reminder (notified: ${reminder.notified})`);
+            console.log(`🔔 ----------------------------------------`);
+            console.log(`🔔 Event: "${reminder.title}"`);
+            console.log(`🔔   Reminder time: ${reminder.reminderTime.toLocaleString()}`);
+            console.log(`🔔   Current time:  ${now.toLocaleString()}`);
+            console.log(`🔔   Time diff: ${timeDiff}ms (${secondsUntil}s)`);
+            console.log(`🔔   Already notified: ${reminder.notified}`);
+            console.log(`🔔   Should trigger? ${!reminder.notified && now >= reminder.reminderTime}`);
             
             if (!reminder.notified && now >= reminder.reminderTime) {
-                console.log(`[Reminder Service] Triggering reminder for "${reminder.title}"`);
+                console.log(`🔔 ⚡ TRIGGERING REMINDER for "${reminder.title}"`);
                 this.triggerReminder(reminder);
                 reminder.notified = true;
+                console.log(`🔔 ✅ Reminder triggered and marked as notified`);
+            } else if (reminder.notified) {
+                console.log(`🔔 ⏭️ Reminder already sent for "${reminder.title}"`);
+            } else {
+                console.log(`🔔 ⏰ Reminder not yet due for "${reminder.title}" (${secondsUntil}s to go)`);
             }
             
             // Clean up old reminders (remove after event has passed)
             if (now > reminder.eventStart) {
-                console.log(`[Reminder Service] Cleaning up past event: "${reminder.title}"`);
+                console.log(`🔔 🗑️ Cleaning up past event: "${reminder.title}"`);
                 this.reminders.delete(eventId);
             }
         }
+        
+        console.log(`🔔 =============== CHECK COMPLETE ===============`);
     }
 
     triggerReminder(reminder) {
@@ -276,19 +295,31 @@ class ReminderService {
         this.triggerReminder(testReminder);
     }
 
-    // Debug method to create a test event with reminder in 10 seconds
+    // Debug method to create a test event with reminder in 5 seconds
     createTestEvent() {
         const now = new Date();
+        
+        // Create event that starts in 6 minutes from now
+        const eventStartTime = new Date(now.getTime() + (6 * 60 * 1000));
+        // Set reminder for 5 minutes before (so it fires in 1 minute from now)
+        const reminderMinutes = 5;
+        const reminderTime = new Date(eventStartTime.getTime() - (reminderMinutes * 60 * 1000));
+        
         const testEvent = {
             id: 'test-' + Date.now(),
-            title: 'Test Event - Will Remind in 10 seconds',
+            title: 'Test Event - Reminder in 60 seconds',
             description: 'This is a test event for reminder testing',
-            start_time: new Date(now.getTime() + 70000).toISOString(), // Start in 70 seconds
-            end_time: new Date(now.getTime() + 130000).toISOString(), // End in 2 minutes 10 seconds
-            reminder_minutes: 1 // Remind 1 minute before (so 10 seconds from now)
+            start_time: eventStartTime.toISOString(),
+            end_time: new Date(eventStartTime.getTime() + (30 * 60 * 1000)).toISOString(), // 30 minutes long
+            reminder_minutes: reminderMinutes
         };
         
-        console.log('🔔 Creating test event that will remind in 10 seconds...');
+        console.log('🔔 Creating test event:');
+        console.log('🔔   Current time:', now.toLocaleString());
+        console.log('🔔   Event starts:', eventStartTime.toLocaleString());
+        console.log('🔔   Reminder time:', reminderTime.toLocaleString());
+        console.log('🔔   Reminder fires in:', Math.ceil((reminderTime - now) / 1000), 'seconds');
+        
         this.addEvent(testEvent);
         
         if (!this.isRunning) {
