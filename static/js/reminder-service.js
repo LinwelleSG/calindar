@@ -58,6 +58,9 @@ class ReminderService {
         
         console.log('🔔 ReminderService: Started - checking every 5 seconds');
         
+        // Register background sync for PWA
+        this.registerBackgroundSync();
+        
         // Do an immediate check
         this.checkReminders();
     }
@@ -96,6 +99,9 @@ class ReminderService {
             
             console.log(`[Reminder Service] Reminder set for "${event.title}" at ${reminderTime.toLocaleString()}`);
             console.log(`[Reminder Service] Total reminders: ${this.reminders.size}`);
+            
+            // Sync to storage for service worker access
+            this.syncRemindersToStorage();
         } else {
             console.log(`[Reminder Service] No reminder needed for "${event.title}" (reminder_minutes: ${event.reminder_minutes})`);
         }
@@ -274,6 +280,46 @@ class ReminderService {
         }
         
         console.log(`Loaded ${this.reminders.size} reminders`);
+        
+        // Store reminders in IndexedDB for service worker access
+        this.syncRemindersToStorage();
+    }
+
+    // Sync reminders to IndexedDB for service worker background access
+    async syncRemindersToStorage() {
+        try {
+            const request = indexedDB.open('CalindarDB', 1);
+            
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                if (!db.objectStoreNames.contains('reminders')) {
+                    db.createObjectStore('reminders', { keyPath: 'eventId' });
+                }
+            };
+            
+            request.onsuccess = (event) => {
+                const db = event.target.result;
+                const transaction = db.transaction(['reminders'], 'readwrite');
+                const store = transaction.objectStore('reminders');
+                
+                // Clear existing reminders
+                store.clear();
+                
+                // Add current reminders
+                for (const [eventId, reminder] of this.reminders.entries()) {
+                    const reminderData = {
+                        ...reminder,
+                        reminderTime: reminder.reminderTime.toISOString(),
+                        eventStart: reminder.eventStart.toISOString()
+                    };
+                    store.add(reminderData);
+                }
+                
+                console.log('🔔 Synced', this.reminders.size, 'reminders to IndexedDB for background access');
+            };
+        } catch (error) {
+            console.error('🔔 Error syncing reminders to storage:', error);
+        }
     }
 
     // Get status info
@@ -359,6 +405,36 @@ class ReminderService {
         console.log('[Reminder Service] Creating test reminder...');
         this.addEvent(testEvent);
         return testEvent;
+    }
+
+    // Register background sync for PWA notifications
+    async registerBackgroundSync() {
+        if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+            try {
+                const registration = await navigator.serviceWorker.ready;
+                
+                // Register background sync
+                await registration.sync.register('reminder-sync');
+                console.log('🔔 Background sync registered for PWA reminders');
+                
+                // Register periodic background sync if available (experimental)
+                if ('periodicSync' in registration) {
+                    try {
+                        await registration.periodicSync.register('reminder-check', {
+                            minInterval: 60000 // Check every minute
+                        });
+                        console.log('🔔 Periodic background sync registered');
+                    } catch (error) {
+                        console.log('🔔 Periodic background sync not available:', error.message);
+                    }
+                }
+                
+            } catch (error) {
+                console.error('🔔 Error registering background sync:', error);
+            }
+        } else {
+            console.log('🔔 Background sync not supported');
+        }
     }
 }
 

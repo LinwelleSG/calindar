@@ -25,26 +25,38 @@ def manifest():
     return jsonify({
         "name": "Calindar - Family Calendar",
         "short_name": "Calindar",
-        "description": "A lightweight family calendar and reminder app",
+        "description": "A beautiful family calendar app with reminders",
         "start_url": "/",
         "display": "standalone",
-        "background_color": "#ffffff",
-        "theme_color": "#2196F3",
+        "background_color": "#F4EDE5",
+        "theme_color": "#D4A574",
+        "orientation": "portrait-primary",
         "icons": [
             {
                 "src": "/static/icons/icon-192x192.png",
                 "sizes": "192x192",
-                "type": "image/png"
+                "type": "image/png",
+                "purpose": "any maskable"
             },
             {
                 "src": "/static/icons/icon-512x512.png",
                 "sizes": "512x512",
-                "type": "image/png"
+                "type": "image/png",
+                "purpose": "any maskable"
             }
-        ]
+        ],
+        "categories": ["productivity", "lifestyle"],
+        "lang": "en",
+        "scope": "/"
     })
 
 @main_bp.route('/sw.js')
 def service_worker():
     """Service worker for PWA functionality"""
-    return render_template('sw.js'), 200, {'Content-Type': 'application/javascript'}
+    from flask import send_from_directory
+    import os
+    return send_from_directory(
+        os.path.join(os.path.dirname(__file__), '..', '..', 'static'),
+        'sw.js',
+        mimetype='application/javascript'
+    )

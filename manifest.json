@@ -1,0 +1,36 @@
+{
+  "name": "Calindar - Family Calendar",
+  "short_name": "Calindar",
+  "description": "A beautiful family calendar app with reminders",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F4EDE5",
+  "theme_color": "#D4A574",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/static/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/icon-512x512.png", 
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "lifestyle"],
+  "lang": "en",
+  "scope": "/",
+  "permissions": [
+    "notifications",
+    "background-sync",
+    "periodic-background-sync"
+  ],
+  "background_sync": {
+    "service_worker": "/sw.js"
+  },
+  "gcm_sender_id": "103953800507"
+}
