@@ -12,10 +12,11 @@
 }
 
 .calendar-navigation h3 {
-    color: #a0877a;
+    color: #5d4e42;
     margin: 0;
     font-size: 1.5rem;
-    text-shadow: 0 2px 4px rgba(160, 135, 122, 0.2);
+    font-weight: bold;
+    text-shadow: 0 2px 4px rgba(93, 78, 66, 0.2);
 }
 
 .calendar-navigation button {
@@ -44,7 +45,8 @@
 }
 
 .event-details strong {
-    color: #a0877a;
+    color: #5d4e42;
+    font-weight: bold;
 }
 
 /* Mobile improvements */
