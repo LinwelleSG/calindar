@@ -5,15 +5,17 @@
     align-items: center;
     margin-bottom: 2rem;
     padding: 1rem;
-    background: white;
+    background: #faf8f5;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(212, 165, 116, 0.15);
+    border: 1px solid rgba(212, 165, 116, 0.2);
 }
 
 .calendar-navigation h3 {
-    color: #2c3e50;
+    color: #a0877a;
     margin: 0;
     font-size: 1.5rem;
+    text-shadow: 0 2px 4px rgba(160, 135, 122, 0.2);
 }
 
 .calendar-navigation button {
@@ -22,12 +24,14 @@
 
 /* Additional button styles */
 .btn-danger {
-    background-color: #dc3545;
-    color: white;
+    background-color: #c07865;
+    color: #f4ede5;
+    box-shadow: 0 2px 8px rgba(192, 120, 101, 0.3);
 }
 
 .btn-danger:hover {
-    background-color: #c82333;
+    background-color: #a8675a;
+    box-shadow: 0 4px 12px rgba(168, 103, 90, 0.4);
 }
 
 /* Event details modal improvements */
@@ -40,7 +44,7 @@
 }
 
 .event-details strong {
-    color: #2c3e50;
+    color: #a0877a;
 }
 
 /* Mobile improvements */

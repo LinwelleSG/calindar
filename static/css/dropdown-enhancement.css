@@ -1,0 +1,103 @@
+/* Enhanced Dropdown Styling for Better Visual Definition */
+.month-select,
+.year-select {
+    /* Enhanced border and background for better visibility */
+    border: 3px solid #d4a574 !important;
+    background: linear-gradient(145deg, #faf8f5, #f0e6d7) !important;
+    box-shadow: 0 4px 8px rgba(212, 165, 116, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+    font-weight: 600 !important;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8) !important;
+    min-width: 120px !important;
+    text-align: center !important;
+    border-radius: 10px !important;
+    padding: 0.75rem 2.5rem 0.75rem 1rem !important;
+    font-size: 1.1rem !important;
+    color: #5d4e42 !important;
+    transition: all 0.3s ease !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewbox='0 0 20 20'%3e%3cpath stroke='%23a0877a' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") !important;
+    background-position: right 0.75rem center !important;
+    background-repeat: no-repeat !important;
+    background-size: 1.2em 1.2em !important;
+}
+
+.month-select:hover,
+.year-select:hover {
+    border-color: #c1956a !important;
+    background: linear-gradient(145deg, #f0e6d7, #ead5c1) !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewbox='0 0 20 20'%3e%3cpath stroke='%23c1956a' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") !important;
+    box-shadow: 0 6px 12px rgba(212, 165, 116, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 0 0 1px rgba(212, 165, 116, 0.4) !important;
+    transform: translateY(-2px) !important;
+    cursor: pointer !important;
+}
+
+.month-select:focus,
+.year-select:focus {
+    outline: none !important;
+    border-color: #a0877a !important;
+    border-width: 4px !important;
+    background: linear-gradient(145deg, #f0e6d7, #ead5c1) !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewbox='0 0 20 20'%3e%3cpath stroke='%23a0877a' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") !important;
+    box-shadow: 0 0 0 4px rgba(212, 165, 116, 0.3), 0 8px 16px rgba(212, 165, 116, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+    transform: translateY(-2px) !important;
+}
+
+.month-select:active,
+.year-select:active {
+    transform: translateY(0) !important;
+    border-color: #8d7468 !important;
+    background: linear-gradient(145deg, #ead5c1, #e0d0c1) !important;
+    box-shadow: inset 0 2px 4px rgba(212, 165, 116, 0.3) !important;
+}
+
+/* Enhanced container styling */
+.date-selectors {
+    background: linear-gradient(145deg, rgba(250, 248, 245, 0.98), rgba(240, 230, 215, 0.95)) !important;
+    border: 2px solid rgba(212, 165, 116, 0.5) !important;
+    border-radius: 16px !important;
+    padding: 1rem !important;
+    gap: 1rem !important;
+    box-shadow: 0 4px 12px rgba(212, 165, 116, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+    backdrop-filter: blur(10px) !important;
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 1rem !important;
+}
+
+/* Option styling for better dropdown appearance */
+.month-select option,
+.year-select option {
+    background-color: #faf8f5 !important;
+    color: #5d4e42 !important;
+    padding: 0.5rem !important;
+    font-weight: 500 !important;
+}
+
+.month-select option:checked,
+.year-select option:checked {
+    background-color: #d4a574 !important;
+    color: #f4ede5 !important;
+    font-weight: bold !important;
+}
+
+/* Additional border emphasis */
+.month-select,
+.year-select {
+    position: relative;
+}
+
+.month-select::before,
+.year-select::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border: 1px solid rgba(212, 165, 116, 0.3);
+    border-radius: 12px;
+    pointer-events: none;
+    z-index: -1;
+}
