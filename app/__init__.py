@@ -29,7 +29,7 @@ def create_app(config_name=None):
     cors.init_app(app)
     socketio.init_app(app, 
                      cors_allowed_origins="*", 
-                     async_mode='eventlet',
+                     async_mode='gevent',
                      logger=True, 
                      engineio_logger=True)
     
