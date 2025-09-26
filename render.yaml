@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: calindar
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        value: sqlite:///calendar.db
+    disk:
+      name: calendar-data
+      mountPath: /opt/render/project/src/instance
+      sizeGB: 1
