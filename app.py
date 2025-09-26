@@ -4,11 +4,12 @@ import os
 
 app = create_app()
 
+# Initialize database when app starts
+with app.app_context():
+    # Create tables if they don't exist
+    db.create_all()
+
 if __name__ == '__main__':
-    with app.app_context():
-        # Create tables if they don't exist
-        db.create_all()
-        
     # Run the app with SocketIO
     port = int(os.environ.get('PORT', 5000))
     debug = os.environ.get('FLASK_ENV') != 'production'

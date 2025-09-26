@@ -27,7 +27,11 @@ def create_app(config_name=None):
     db.init_app(app)
     migrate.init_app(app, db)
     cors.init_app(app)
-    socketio.init_app(app, cors_allowed_origins="*")
+    socketio.init_app(app, 
+                     cors_allowed_origins="*", 
+                     async_mode='eventlet',
+                     logger=True, 
+                     engineio_logger=True)
     
     # Register blueprints
     from app.api import api_bp
