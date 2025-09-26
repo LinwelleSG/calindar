@@ -137,11 +137,19 @@ class ReminderService {
             console.log(`🔔   Already notified: ${reminder.notified}`);
             console.log(`🔔   Should trigger? ${!reminder.notified && now >= reminder.reminderTime}`);
             
-            if (!reminder.notified && now >= reminder.reminderTime) {
+            // Check if reminder should trigger
+            const shouldTrigger = !reminder.notified && now >= reminder.reminderTime;
+            console.log(`🔔 Should trigger check: !${reminder.notified} && ${now.getTime()} >= ${reminder.reminderTime.getTime()} = ${shouldTrigger}`);
+            
+            if (shouldTrigger) {
                 console.log(`🔔 ⚡ TRIGGERING REMINDER for "${reminder.title}"`);
-                this.triggerReminder(reminder);
-                reminder.notified = true;
-                console.log(`🔔 ✅ Reminder triggered and marked as notified`);
+                try {
+                    this.triggerReminder(reminder);
+                    reminder.notified = true;
+                    console.log(`🔔 ✅ Reminder triggered and marked as notified`);
+                } catch (error) {
+                    console.error(`🔔 ❌ Error triggering reminder:`, error);
+                }
             } else if (reminder.notified) {
                 console.log(`🔔 ⏭️ Reminder already sent for "${reminder.title}"`);
             } else {
@@ -212,16 +220,24 @@ class ReminderService {
         }
 
         // Also show in-app notification
-        if (window.sharedApp && window.sharedApp.showNotification) {
-            window.sharedApp.showNotification(message, 'reminder');
-        } else if (window.app && window.app.showNotification) {
-            window.app.showNotification(message, 'reminder');
+        try {
+            if (window.sharedApp && window.sharedApp.showNotification) {
+                console.log('🔔 Showing in-app notification via sharedApp');
+                window.sharedApp.showNotification(message, 'reminder');
+            } else if (window.app && window.app.showNotification) {
+                console.log('🔔 Showing in-app notification via app');
+                window.app.showNotification(message, 'reminder');
+            } else {
+                console.log('🔔 No in-app notification method found');
+            }
+        } catch (error) {
+            console.error('🔔 Error showing in-app notification:', error);
         }
 
         // Play notification sound
         this.playNotificationSound();
 
-        console.log(`Reminder triggered: ${message}`);
+        console.log(`🔔 ✅ REMINDER TRIGGERED SUCCESSFULLY: ${message}`);
     }
 
     playNotificationSound() {
