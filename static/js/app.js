@@ -169,13 +169,15 @@ class CalendarApp {
     
     async checkUser() {
         try {
-            const response = await fetch('/api/users/current');
+            const response = await fetch('/api/user/current');
             if (response.ok) {
                 this.currentUser = await response.json();
+                console.log('User found:', this.currentUser);
                 document.getElementById('currentUserName').textContent = `Hello, ${this.currentUser.username}!`;
                 this.showMainApp();
                 this.loadCalendars();
             } else {
+                console.log('No user session found, showing username setup');
                 this.showUsernameSetup();
             }
         } catch (error) {
@@ -192,25 +194,143 @@ class CalendarApp {
         const usernameInput = document.getElementById('usernameInput');
         usernameInput.focus();
         
-        // Allow Enter key to submit
-        usernameInput.addEventListener('keypress', (e) => {
+        // Simple event listener for input changes
+        usernameInput.oninput = () => {
+            clearTimeout(this.usernameTimeout);
+            this.usernameTimeout = setTimeout(() => {
+                this.checkUsernameAvailability();
+            }, 500);
+        };
+        
+        // Handle Enter key
+        usernameInput.onkeypress = (e) => {
             if (e.key === 'Enter') {
-                this.setUsername();
+                const registerBtn = document.getElementById('registerBtn');
+                const loginBtn = document.getElementById('loginBtn');
+                
+                if (registerBtn.style.display !== 'none') {
+                    this.registerUser();
+                } else if (loginBtn.style.display !== 'none') {
+                    this.loginUser();
+                }
             }
-        });
+        };
+    }
+
+    
+    async checkUsernameAvailability() {
+        const username = document.getElementById('usernameInput').value.trim();
+        const statusEl = document.getElementById('usernameStatus');
+        const registerBtn = document.getElementById('registerBtn');
+        const loginBtn = document.getElementById('loginBtn');
+        
+        console.log('Checking username:', username);
+        console.log('Elements found:', { statusEl: !!statusEl, registerBtn: !!registerBtn, loginBtn: !!loginBtn });
+        
+        if (!username) {
+            statusEl.textContent = '';
+            statusEl.className = 'username-status';
+            registerBtn.style.display = 'none';
+            loginBtn.style.display = 'none';
+            return;
+        }
+        
+        if (username.length < 3) {
+            statusEl.textContent = 'Username must be at least 3 characters';
+            statusEl.className = 'username-status taken';
+            registerBtn.style.display = 'none';
+            loginBtn.style.display = 'none';
+            return;
+        }
+        
+        try {
+            statusEl.textContent = 'Checking...';
+            statusEl.className = 'username-status checking';
+            
+            console.log('Making API request to:', `/api/user/check-username?username=${encodeURIComponent(username)}`);
+            const response = await fetch(`/api/user/check-username?username=${encodeURIComponent(username)}`);
+            console.log('Response status:', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const result = await response.json();
+            console.log('API result:', result);
+            
+            if (result.available) {
+                statusEl.textContent = 'Username available! Click Register to continue.';
+                statusEl.className = 'username-status available';
+                registerBtn.style.display = 'inline-block';
+                loginBtn.style.display = 'none';
+                console.log('Showing register button');
+            } else {
+                statusEl.textContent = 'Username exists. Click Login to continue.';
+                statusEl.className = 'username-status taken';
+                registerBtn.style.display = 'none';
+                loginBtn.style.display = 'inline-block';
+                console.log('Showing login button');
+            }
+        } catch (error) {
+            console.error('Error checking username:', error);
+            statusEl.textContent = 'Error checking username: ' + error.message;
+            statusEl.className = 'username-status taken';
+            registerBtn.style.display = 'none';
+            loginBtn.style.display = 'none';
+        }
     }
     
-    async setUsername() {
+    async registerUser() {
         const username = document.getElementById('usernameInput').value.trim();
         
         if (!username) {
-            this.showNotification('Please enter your name', 'error');
+            this.showNotification('Please enter a username', 'error');
             return;
         }
         
         try {
             this.showLoading();
-            const response = await fetch('/api/users', {
+            const response = await fetch('/api/user/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username }),
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                this.currentUser = result.user;
+                console.log('Registered user object:', this.currentUser);
+                // Make sure username is available for display
+                this.currentUser.username = this.currentUser.username || username;
+                document.getElementById('currentUserName').textContent = `Hello, ${this.currentUser.username}!`;
+                this.showMainApp();
+                this.loadCalendars();
+                this.showNotification(`Welcome, ${username}! Your account has been created.`, 'success');
+            } else {
+                const error = await response.json();
+                this.showNotification(error.error || 'Error registering user', 'error');
+            }
+        } catch (error) {
+            console.error('Error registering user:', error);
+            this.showNotification('Error registering user', 'error');
+        } finally {
+            this.hideLoading();
+        }
+    }
+    
+    async loginUser() {
+        const username = document.getElementById('usernameInput').value.trim();
+        
+        if (!username) {
+            this.showNotification('Please enter a username', 'error');
+            return;
+        }
+        
+        try {
+            this.showLoading();
+            const response = await fetch('/api/user/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -220,17 +340,53 @@ class CalendarApp {
             
             if (response.ok) {
                 this.currentUser = await response.json();
+                console.log('Logged in user object:', this.currentUser);
+                // Make sure username is available for display
+                this.currentUser.username = this.currentUser.username || username;
                 document.getElementById('currentUserName').textContent = `Hello, ${this.currentUser.username}!`;
                 this.showMainApp();
                 this.loadCalendars();
-                this.showNotification(`Welcome, ${username}!`, 'success');
+                this.showNotification(`Welcome back, ${username}!`, 'success');
             } else {
                 const error = await response.json();
-                this.showNotification(error.error || 'Error setting username', 'error');
+                this.showNotification(error.error || 'Error logging in', 'error');
             }
         } catch (error) {
-            console.error('Error setting username:', error);
-            this.showNotification('Error setting username', 'error');
+            console.error('Error logging in:', error);
+            this.showNotification('Error logging in', 'error');
+        } finally {
+            this.hideLoading();
+        }
+    }
+
+    async logout() {
+        try {
+            this.showLoading();
+            const response = await fetch('/api/user/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            
+            if (response.ok) {
+                this.currentUser = null;
+                this.calendars = [];
+                this.hideAllSections();
+                document.getElementById('usernameSection').style.display = 'block';
+                document.getElementById('logoutBtn').style.display = 'none';
+                document.getElementById('usernameInput').value = '';
+                document.getElementById('usernameStatus').textContent = '';
+                document.getElementById('registerBtn').style.display = 'none';
+                document.getElementById('loginBtn').style.display = 'none';
+                this.showNotification('Logged out successfully', 'success');
+            } else {
+                const error = await response.json();
+                this.showNotification(error.error || 'Logout failed', 'error');
+            }
+        } catch (error) {
+            console.error('Logout error:', error);
+            this.showNotification('Error logging out', 'error');
         } finally {
             this.hideLoading();
         }
@@ -238,6 +394,18 @@ class CalendarApp {
     
     showMainApp() {
         this.hideAllSections();
+        
+        // Show logout button
+        document.getElementById('logoutBtn').style.display = 'inline-flex';
+        
+        // Update welcome section with personalized greeting
+        const welcomeTitle = document.getElementById('welcomeTitle');
+        const welcomeSubtitle = document.getElementById('welcomeSubtitle');
+        if (welcomeTitle && this.currentUser && this.currentUser.username) {
+            welcomeTitle.textContent = `Hello, ${this.currentUser.username}!`;
+            welcomeSubtitle.textContent = 'Ready to create your first calendar?';
+        }
+        
         // Check if user has calendars to show appropriate section
         if (this.calendars && this.calendars.length > 0) {
             this.showCalendarsList();
@@ -1053,6 +1221,14 @@ class CalendarApp {
     showWelcomeSection() {
         this.hideAllSections();
         document.getElementById('welcomeSection').style.display = 'block';
+        
+        // Update personalized greeting if we have current user
+        const welcomeTitle = document.getElementById('welcomeTitle');
+        const welcomeSubtitle = document.getElementById('welcomeSubtitle');
+        if (welcomeTitle && this.currentUser && this.currentUser.username) {
+            welcomeTitle.textContent = `Hello, ${this.currentUser.username}!`;
+            welcomeSubtitle.textContent = 'Ready to create your first calendar?';
+        }
     }
     
     hideAllSections() {
@@ -1191,3 +1367,34 @@ window.deleteEvent = (eventId) => app.deleteEvent(eventId);
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new CalendarApp();
 });
+
+// Global test function for debugging
+window.testUsernameCheck = async function(username) {
+    console.log('Testing username:', username);
+    try {
+        const response = await fetch(`/api/user/check-username?username=${encodeURIComponent(username)}`);
+        console.log('Response status:', response.status);
+        const result = await response.json();
+        console.log('API result:', result);
+        
+        const statusEl = document.getElementById('usernameStatus');
+        const registerBtn = document.getElementById('registerBtn');
+        const loginBtn = document.getElementById('loginBtn');
+        
+        if (result.available) {
+            statusEl.textContent = 'Username available! Click Register to continue.';
+            statusEl.className = 'username-status available';
+            registerBtn.style.display = 'inline-block';
+            loginBtn.style.display = 'none';
+            console.log('Should show register button');
+        } else {
+            statusEl.textContent = 'Username exists. Click Login to continue.';
+            statusEl.className = 'username-status taken';
+            registerBtn.style.display = 'none';
+            loginBtn.style.display = 'inline-block';
+            console.log('Should show login button');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+};

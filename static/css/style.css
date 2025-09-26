@@ -94,7 +94,7 @@ body {
 
 .btn-outline {
     background-color: transparent;
-    color: #d4a574;
+    color: #ffffff;
     border: 2px solid #d4a574;
 }
 
@@ -631,6 +631,49 @@ body {
 .username-form button:hover {
     background: #c1956a;
     box-shadow: 0 4px 12px rgba(193, 149, 106, 0.4);
+}
+
+/* Username Status */
+.username-status {
+    width: 100%;
+    text-align: center;
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.username-status.available {
+    color: #4a7c4a;
+}
+
+.username-status.taken {
+    color: #c07865;
+}
+
+.username-status.checking {
+    color: #8d7468;
+}
+
+/* Username Help */
+.username-help {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+.help-text {
+    color: #8d7468;
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+/* Button variations for registration */
+.btn.btn-success {
+    background: #4a7c4a;
+    color: #f4ede5;
+}
+
+.btn.btn-success:hover {
+    background: #3d6a3d;
 }
 
 /* Calendar Owner Badge */

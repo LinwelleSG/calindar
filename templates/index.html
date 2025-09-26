@@ -33,6 +33,10 @@
                         <i class="fas fa-share-alt"></i>
                         Join Calendar
                     </button>
+                    <button id="logoutBtn" class="btn btn-outline" onclick="app.logout()" style="display: none;">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
                 </nav>
             </div>
         </header>
@@ -44,13 +48,21 @@
                 <section id="usernameSection" class="welcome-section">
                     <div class="welcome-content">
                         <h2>Welcome to Calindar</h2>
-                        <p>Please enter your name to get started</p>
+                        <p id="usernamePrompt">Enter your username to get started</p>
                         <div class="username-form">
-                            <input type="text" id="usernameInput" placeholder="Enter your name" class="username-input">
-                            <button class="btn btn-large btn-primary" onclick="setUsername()">
-                                <i class="fas fa-user"></i>
-                                Continue
+                            <input type="text" id="usernameInput" placeholder="Enter username" class="username-input">
+                            <div id="usernameStatus" class="username-status"></div>
+                            <button id="registerBtn" class="btn btn-large btn-primary" onclick="app.registerUser()" style="display: none;">
+                                <i class="fas fa-user-plus"></i>
+                                Register
                             </button>
+                            <button id="loginBtn" class="btn btn-large btn-success" onclick="app.loginUser()" style="display: none;">
+                                <i class="fas fa-sign-in-alt"></i>
+                                Login
+                            </button>
+                        </div>
+                        <div class="username-help">
+                            <p class="help-text">Don't have a username yet? Just start typing to register a new one!</p>
                         </div>
                     </div>
                 </section>
@@ -58,8 +70,8 @@
                 <!-- Welcome Section -->
                 <section id="welcomeSection" class="welcome-section" style="display: none;">
                     <div class="welcome-content">
-                        <h2>Welcome to Calindar</h2>
-                        <p>Create and share calendars with your family and loved ones</p>
+                        <h2 id="welcomeTitle">Welcome to Calindar</h2>
+                        <p id="welcomeSubtitle">Create and share calendars with your family and loved ones</p>
                         <div class="actions">
                             <button class="btn btn-large btn-primary" onclick="showCreateCalendarModal()">
                                 <i class="fas fa-calendar-plus"></i>
