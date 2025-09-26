@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CALINDAR - Shared Calendar for Partners</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2196F3">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="CALINDAR">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1>CALINDAR</h1>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="app.showShareDialog()">Share</button>
+                <button class="btn btn-secondary" onclick="app.showSyncDialog()">Sync</button>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="app-nav">
+            <button class="nav-btn active" id="calendar-nav" onclick="app.setView('calendar')">
+                Calendar
+            </button>
+            <button class="nav-btn" id="reminders-nav" onclick="app.setView('reminders')">
+                Reminders
+            </button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <!-- Calendar View -->
+            <div id="calendar-view" class="calendar-view">
+                <div class="calendar-header">
+                    <button class="btn-icon" onclick="app.previousMonth()">&lt;</button>
+                    <h2 id="current-month-display">January 2024</h2>
+                    <button class="btn-icon" onclick="app.nextMonth()">&gt;</button>
+                </div>
+                
+                <div class="calendar-grid" id="calendar-grid">
+                    <!-- Calendar will be generated here -->
+                </div>
+            </div>
+
+            <!-- Reminders View -->
+            <div id="reminders-view" class="reminders-view" style="display: none;">
+                <div class="reminders-header">
+                    <h2>Upcoming Reminders</h2>
+                    <button class="btn btn-primary" onclick="app.showAddReminderDialog()">Add Reminder</button>
+                </div>
+                
+                <div class="reminders-list" id="reminders-list">
+                    <!-- Reminders will be generated here -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Add/Edit Reminder Modal -->
+        <div class="modal" id="reminder-modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="reminder-modal-title">Add Reminder</h3>
+                    <button class="btn-close" onclick="app.closeReminderModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="app.saveReminder(); return false;">
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" id="reminder-title" required class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="datetime-local" id="reminder-date" required class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="reminder-description" class="form-input"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save</button>
+                            <button type="button" class="btn btn-secondary" onclick="app.closeReminderModal()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Share Modal -->
+        <div class="modal" id="share-modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Share Calendar</h3>
+                    <button class="btn-close" onclick="app.closeShareModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="share-section">
+                        <h4>Your Share Code:</h4>
+                        <div class="share-code" id="share-code-display">ABC123</div>
+                        <button class="btn btn-primary" onclick="app.copyShareCode()">Copy Code</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sync Modal -->
+        <div class="modal" id="sync-modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Sync with Partner</h3>
+                    <button class="btn-close" onclick="app.closeSyncModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="sync-section">
+                        <h4>Enter Partner's Share Code:</h4>
+                        <input type="text" id="partner-code" placeholder="Enter share code" class="form-input">
+                        <button class="btn btn-primary" onclick="app.syncWithPartner()">Sync Calendar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app/app.js"></script>
+    <script src="js/utils.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+        
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            app.init();
+        });
+    </script>
+</body>
+</html>
