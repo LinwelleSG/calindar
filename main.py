@@ -9,10 +9,8 @@ flask_app = create_app()
 app = flask_app  # For gunicorn app:app
 # socketio is already imported and configured in create_app()
 
-# Initialize database when app starts
-with flask_app.app_context():
-    # Create tables if they don't exist
-    db.create_all()
+# Database initialization will be handled lazily when first needed
+print("Application starting - database will be initialized on first request")
 
 if __name__ == '__main__':
     # Run the app with SocketIO

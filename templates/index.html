@@ -11,9 +11,16 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Calindar">
     
+    <!-- Prevent caching in development -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
     <!-- CSS Framework and Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="/static/css/style.css" rel="stylesheet">    <link href="/static/css/dropdown-enhancement.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') | cache_bust }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/navigation.css') | cache_bust }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/dropdown-enhancement.css') | cache_bust }}" rel="stylesheet">
 </head>
 <body>
     <div id="app">
@@ -279,9 +286,9 @@
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
-    <script src="/static/js/reminder-service.js"></script>
-    <script src="/static/js/calendar.js"></script>
-    <script src="/static/js/app.js"></script>
+    <script src="{{ url_for('static', filename='js/reminder-service.js') | cache_bust }}"></script>
+    <script src="{{ url_for('static', filename='js/calendar.js') | cache_bust }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') | cache_bust }}"></script>
     <script>
         // Register service worker for PWA
         if ('serviceWorker' in navigator) {

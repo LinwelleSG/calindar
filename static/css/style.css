@@ -272,8 +272,7 @@ body {
     padding: 1rem;
     text-align: center;
     font-weight: bold;
-    color: #5d4e42;
-    text-shadow: 0 1px 2px rgba(93, 78, 66, 0.1);
+    color: #a0877a;
 }
 
 .calendar-day {
@@ -292,7 +291,7 @@ body {
 
 .calendar-day.other-month {
     background-color: #f0e6d7;
-    color: #8d7468;
+    color: #c4b5a8;
 }
 
 .calendar-day.today {
@@ -308,15 +307,6 @@ body {
 .day-number {
     font-weight: bold;
     margin-bottom: 0.25rem;
-    color: #5d4e42;
-}
-
-.calendar-day.other-month .day-number {
-    color: #8d7468;
-}
-
-.calendar-day.selected .day-number {
-    color: #f4ede5;
 }
 
 .day-events {
@@ -334,7 +324,6 @@ body {
     cursor: pointer;
     transition: background-color 0.2s ease;
     box-shadow: 0 1px 3px rgba(212, 165, 116, 0.3);
-    font-weight: 500;
 }
 
 .event-item:hover {
@@ -382,8 +371,7 @@ body {
 }
 
 .modal-header h3 {
-    color: #5d4e42;
-    font-weight: bold;
+    color: #a0877a;
 }
 
 .modal-close {
@@ -428,10 +416,9 @@ body {
     border: 2px solid #e6d7c8;
     border-radius: 8px;
     font-size: 1rem;
-    background-color: #ffffff;
+    background-color: #faf8f5;
     color: #5d4e42;
     transition: border-color 0.2s ease;
-    font-weight: 500;
 }
 
 .form-group input:focus,
@@ -577,7 +564,6 @@ body {
     
     .calendar-view {
         padding: 1rem;
-        overflow-x: auto;
     }
     
     .modal-content {
@@ -585,18 +571,8 @@ body {
     }
     
     .calendar-day {
-        min-height: 70px;
-        padding: 0.2rem;
-        font-size: 0.75rem;
-    }
-    
-    .calendar-grid {
-        min-width: 350px;
-    }
-    
-    .calendar-day-header {
-        padding: 0.4rem 0.2rem;
-        font-size: 0.75rem;
+        min-height: 80px;
+        padding: 0.25rem;
     }
 }
 
@@ -636,9 +612,8 @@ body {
     border-radius: 4px;
     font-size: 1rem;
     min-width: 200px;
-    background-color: #ffffff;
+    background-color: #faf8f5;
     color: #5d4e42;
-    font-weight: 500;
 }
 
 .username-form button {
@@ -986,14 +961,13 @@ body {
 }
 
 .sidebar-section h3 {
-    color: #5d4e42;
+    color: #d4a574;
     margin-bottom: 1rem;
     font-size: 1.1rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-weight: bold;
-    text-shadow: 0 1px 2px rgba(93, 78, 66, 0.1);
+    text-shadow: 0 1px 2px rgba(212, 165, 116, 0.2);
 }
 
 /* Upcoming Events Styles */
@@ -1143,39 +1117,6 @@ body {
     .calendar-nav {
         flex-direction: column;
         gap: 0.5rem;
-    }
-    
-    /* Fix calendar grid for mobile - ensure all 7 days are visible */
-    .calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 1px;
-        min-width: 100%;
-        overflow-x: auto;
-    }
-    
-    .calendar-day {
-        min-height: 80px;
-        padding: 0.25rem;
-        font-size: 0.8rem;
-        min-width: 45px;
-    }
-    
-    .calendar-day-header {
-        padding: 0.5rem 0.25rem;
-        font-size: 0.8rem;
-        min-width: 45px;
-    }
-    
-    .day-number {
-        font-size: 0.9rem;
-        margin-bottom: 0.15rem;
-    }
-    
-    .event-item {
-        font-size: 0.65rem;
-        padding: 1px 4px;
-        margin-bottom: 1px;
     }
     
     .date-selectors {

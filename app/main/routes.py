@@ -1,62 +1,99 @@
-from flask import render_template, jsonify
+from flask import render_template, jsonify, request, redirect, url_for, current_app
 from . import main_bp
+from app.models import db
+from datetime import datetime, timedelta
+import json
+
+def init_db_if_needed():
+    """Initialize database tables if they don't exist"""
+    try:
+        # Try to create tables if they don't exist
+        db.create_all()
+        return True
+    except Exception as e:
+        current_app.logger.error(f"Database initialization failed: {e}")
+        return False
 
 @main_bp.route('/')
 def index():
-    """Serve the main PWA interface"""
+    """Main calendar page"""
+    # Try to initialize database on first request
+    init_db_if_needed()
     return render_template('index.html')
 
-@main_bp.route('/calendar/<share_code>')
-def shared_calendar(share_code):
-    """Serve the shared calendar view"""
-    return render_template('calendar.html', share_code=share_code)
-
-@main_bp.route('/debug')
-def debug():
-    """Debug page for testing notifications"""
-    from flask import send_from_directory
-    import os
-    # Serve the debug.html file from the root directory
-    return send_from_directory(os.path.join(os.path.dirname(__file__), '..', '..'), 'debug.html')
+@main_bp.route('/calendar')
+def calendar():
+    """Calendar view page"""
+    # Try to initialize database on first request
+    init_db_if_needed()
+    return render_template('calendar.html')
 
 @main_bp.route('/manifest.json')
 def manifest():
     """PWA manifest file"""
     return jsonify({
-        "name": "Calindar - Family Calendar",
+        "name": "Calindar",
         "short_name": "Calindar",
-        "description": "A beautiful family calendar app with reminders",
+        "description": "A modern calendar application",
         "start_url": "/",
         "display": "standalone",
-        "background_color": "#F4EDE5",
-        "theme_color": "#D4A574",
-        "orientation": "portrait-primary",
+        "theme_color": "#4f46e5",
+        "background_color": "#ffffff",
         "icons": [
             {
                 "src": "/static/icons/icon-192x192.png",
                 "sizes": "192x192",
-                "type": "image/png",
-                "purpose": "any maskable"
+                "type": "image/png"
             },
             {
                 "src": "/static/icons/icon-512x512.png",
                 "sizes": "512x512",
-                "type": "image/png",
-                "purpose": "any maskable"
+                "type": "image/png"
             }
-        ],
-        "categories": ["productivity", "lifestyle"],
-        "lang": "en",
-        "scope": "/"
+        ]
     })
 
-@main_bp.route('/sw.js')
-def service_worker():
-    """Service worker for PWA functionality"""
-    from flask import send_from_directory
-    import os
-    return send_from_directory(
-        os.path.join(os.path.dirname(__file__), '..', '..', 'static'),
-        'sw.js',
-        mimetype='application/javascript'
-    )
+@main_bp.route('/health')
+def health_check():
+    """Health check endpoint"""
+    db_status = "unknown"
+    try:
+        # Test database connection
+        db.session.execute(db.text('SELECT 1'))
+        db_status = "connected"
+    except Exception as e:
+        db_status = f"disconnected: {str(e)[:100]}"
+    
+    return jsonify({
+        "status": "healthy",
+        "database": db_status,
+        "timestamp": datetime.utcnow().isoformat(),
+        "version": "1.0.0",
+        "message": "Application is running, database may be initializing"
+    })
+
+@main_bp.route('/ping')
+def ping():
+    """Simple ping endpoint that doesn't require database"""
+    return jsonify({
+        "status": "ok",
+        "message": "Application is running",
+        "timestamp": datetime.utcnow().isoformat()
+    })
+
+@main_bp.route('/init-db')
+def init_database():
+    """Initialize database tables - for production deployment"""
+    try:
+        db.create_all()
+        return jsonify({
+            "status": "success",
+            "message": "Database tables created successfully",
+            "timestamp": datetime.utcnow().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+            "timestamp": datetime.utcnow().isoformat()
+        }), 500
